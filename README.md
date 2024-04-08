@@ -46,11 +46,11 @@ To clone the project with the required submodules, you may consider one of the f
 
 - Cloning the project using `https`: you should run the following command
 ```bash
-git clone --recurse-submodules https://github.com/basp-group/uSARA.git
+git clone --recurse-submodules https://github.com/olivierleblanc/uSARA.git
 ```
 - Cloning the project using SSH key for GitHub: you should run the following command first
 ```bash
-git clone git@github.com:basp-group/AIRI.git
+git clone git@github.com:olivierleblanc/uSARA.git
 ```
 
 Next, please edit the `.gitmodules` file, replacing the `https` addresses with the `git@github.com` counterpart as follows: 
