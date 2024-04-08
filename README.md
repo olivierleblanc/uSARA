@@ -10,7 +10,7 @@
     - [Updating submodules (optional)](#updating-submodules-optional)
   - [Input Files](#input-files)
     - [Measurement file](#measurement-file)
-    - [Configuration file](#configuration-parameter-file)
+    - [Configuration (parameter) file](#configuration-parameter-file)
   - [Usage and Example](#usage-and-example)
 
 ## Description
@@ -59,10 +59,11 @@ Next, please edit the `.gitmodules` file, replacing the `https` addresses with t
 [submodule "lib/RI-measurement-operator"]
 	path = lib/RI-measurement-operator
 	url = git@github.com/basp-group/RI-measurement-operator.git
-[submodule "lib/RI-measurement-operator"]
-	path = lib/RI-measurement-operator
-	url = git@github.com/basp-group/RI-measurement-operator.git
+[submodule "lib/SARA-dictionary"]
+	path = lib/SARA-dictionary
+	url = git@github.com/basp-group/SARA-dictionary.git
 ```
+
 Finally, please follow the instructions in the next session [Updating submodules (optional)](#updating-submodules-optional) to clone the submodules into the repository's path.
 
 The full path to the uSARA repository is referred to as `$uSARA` in the rest of the documentation.
