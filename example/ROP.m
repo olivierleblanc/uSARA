@@ -6,7 +6,7 @@ cd(path)
 cd ..
 
 config = ['.', filesep, 'config', filesep, 'ROP.json'];
-dataFile = ['.', filesep, 'data', filesep, 'ngc6543a_data_ROP_unit.mat'];
+dataFile = ['.', filesep, 'data', filesep, 'ngc6543a_data_ROP_unit500.mat'];
 groundtruth = ['.', filesep, 'data', filesep, 'ngc6543a_gt.fits'];
 resultPath = ['.', filesep, 'results'];
 % resultPath = '';
