@@ -55,18 +55,15 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     [A, At, G, W, nWimag] = util_gen_meas_op_comp_single(pathData, imDimx, imDimy, ...
         param_general.flag_data_weighting, param_nufft, param_wproj);
 
-    % [measop, adjoint_measop] = util_syn_meas_op_single(A, At, G, W, []);
+    [measop, adjoint_measop] = util_syn_meas_op_single(A, At, G, W, []);
 
-    [measop2, adjoint_measop2] = util_syn_meas_op_single(A, At, G, W, []);
-
-    %% define the measurememt operator & its adjoint
-    measop = @(x) ( measop2(reshape(x, [imDimy, imDimx])) ); 
-    adjoint_measop = @(y) reshape(adjoint_measop2(y), [imDimy*imDimx, 1]);
-
+    % %% perform the adjoint test
+    % measop_vec = @(x) ( measop(reshape(x, [imDimy, imDimx])) ); 
+    % adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [imDimy*imDimx, 1]);
     % measop_shape = struct();
     % measop_shape.in = [512^2, 1];
     % measop_shape.out = [100*27^2, 1];
-    % adjoint_test(measop, adjoint_measop, measop_shape);
+    % adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
 
     % Compute operator's spectral norm 
     fprintf('\nComputing spectral norm of the measurement operator..')
@@ -84,9 +81,7 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     %% Compute back-projected data: dirty image
     dirty = adjoint_measop(DATA);
     
-    dirty = reshape(dirty, [imDimy, imDimx]);
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
-    dirty = reshape(dirty, [imDimy*imDimx, 1]);
 
     %% Heuristic noise level, used to set the regularisation params
     heuristic_noise = 1 / sqrt(2 * param_general.measOpNorm);
@@ -141,4 +136,5 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
         end
     end
     fprintf('\nTHE END\n')
+
     end

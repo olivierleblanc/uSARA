@@ -67,12 +67,15 @@ function imager_ROP(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     
     %% define the measurememt operator & its adjoint
     measop = @(x) ( D(measop2(reshape(x, [imDimy, imDimx]))) ) ; 
-    adjoint_measop = @(y) reshape(adjoint_measop2(Dt(y)), [imDimy*imDimx, 1]);
+    adjoint_measop = @(y) adjoint_measop2(Dt(y));
 
+    % %% perform the adjoint test
+    % measop_vec = @(x) ( measop(reshape(x, [imDimy, imDimx])) ); 
+    % adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [imDimy*imDimx, 1]);
     % measop_shape = struct();
     % measop_shape.in = [512^2, 1];
     % measop_shape.out = [250000, 1];
-    % adjoint_test(measop, adjoint_measop, measop_shape);
+    % adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
 
     % Compute operator's spectral norm 
     fprintf('\nComputing spectral norm of the measurement operator..')
@@ -88,9 +91,7 @@ function imager_ROP(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     %% Compute back-projected data: dirty image
     dirty = adjoint_measop(DATA);
 
-    dirty = reshape(dirty, [imDimy, imDimx]);
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
-    dirty = reshape(dirty, [imDimy*imDimx, 1]);
 
     %% Heuristic noise level, used to set the regularisation params
     heuristic_noise = 1 / sqrt(2 * param_general.measOpNorm);
@@ -145,4 +146,5 @@ function imager_ROP(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
         end
     end
     fprintf('\nTHE END\n')
+
     end
