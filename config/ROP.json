@@ -7,7 +7,7 @@
             "imDimx": 512,
             "imDimy": 512,
             "imPixelSize": [],
-            "superresolution": 1.0,
+            "superresolution": 1.5,
             "groundtruth": [],
             "runID": []
         }
@@ -32,14 +32,14 @@
         "usara": {  
             "denoiser_comment_1": "usara params",
             "heuRegParamScale": 1.0,
-            "reweighting": true
+            "reweighting": false
         },
 
         "usara_default": {
             "denoiser_comment_2": "usara default params", 
             "imMinInnerItr": 20, 
-            "imMaxInnerItr": 50,
-            "imMaxOuterItr": 3,
+            "imMaxInnerItr": 2000,
+            "imMaxOuterItr": 10,
             "imVarInnerTol": 1e-5,
             "imVarOuterTol": 1e-4,
             "itrSave": 2000,
