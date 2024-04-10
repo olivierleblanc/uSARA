@@ -88,6 +88,7 @@ The current code takes as input data a measurement file in ``.mat`` format, and 
    "w"               %% vector; w coordinate (in units of the wavelength)
    "nW"              %% vector; inverse of the noise standard deviation 
    "nWimag"          %% vector; square root of the imaging weights if available (Briggs or uniform), empty otherwise
+   "ROP_proj"        %% struct; projection vectors if ROP are applied
    "frequency"       %% scalar; channel frequency
    "maxProjBaseline" %% scalar; maximum projected baseline (in units of the wavelength; formally  max(sqrt(u.^2+v.^2)))
    ```
@@ -125,4 +126,7 @@ run_imager(pth_config, ... %% path of the configuration file
   )
 ```
 
-An example script is provided in the folder `$uSARA/example`. This script will reconstruct the groundtruth image `$uSARA/data/3c353_gdth.fits` from the measurement file `$uSARA/data/3c353_meas_dt_1_seed_0.mat`.  To launch this test, please change your current directory to ``$uSARA/example`` and launch the MATLAB scripts inside the folder. The results will be saved in the folder `$uSARA/results/`.
+Example scripts are provided in the folder `$uSARA/examples`. <br> 
+Most scripts will reconstruct the groundtruth image `$uSARA/data/3c353_gdth.fits` from the measurement file `$uSARA/data/3c353_meas_dt_1_seed_0.mat`. 
+``ex_usara_ROP.m`` and ``ex_usara2.m`` will reconstruct the groundtruth image `uSARA/data/ngc6543a_gt.fits` with *separated ROP* measurements and the classical visiblities, respectively. 
+To launch these tests, please change your current directory to ``$uSARA/examples`` and launch the MATLAB scripts inside the folder. The results will be saved in the folder `$uSARA/results/`.
