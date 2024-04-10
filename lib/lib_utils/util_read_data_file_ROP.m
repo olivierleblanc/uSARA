@@ -1,4 +1,4 @@
-function [y, alpha, beta, flag_data_weighting] = util_read_data_file(dataFilename, flag_data_weighting)
+function [y, alpha, beta, flag_data_weighting] = util_read_data_file_ROP(dataFilename, flag_data_weighting)
 
     dataloaded = load(dataFilename, 'y', 'alpha', 'beta', 'nW');
     
