@@ -2,7 +2,7 @@
     {   "__comment": "Main",
         "main": {
             "srcName": [],
-            "dataFile": "./data/ngc6543a_data_ROP_unit500.mat",
+            "dataFile": "./data/ngc6543a_data_ROP_unit100.mat",
             "resultPath": [],
             "imDimx": 512,
             "imDimy": 512,
@@ -42,7 +42,7 @@
             "imMaxOuterItr": 10,
             "imVarInnerTol": 1e-5,
             "imVarOuterTol": 1e-4,
-            "itrSave": 2000,
+            "itrSave": 200,
             "waveletDistribution": "basis",
             "nFacetsPerDim": [2,2],
             "facetDimLowerBound": 256

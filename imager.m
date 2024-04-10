@@ -14,6 +14,7 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'irt', filesep, 'utilities']);
     addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'lib', filesep, 'utils']);
     addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'lib', filesep, 'operators']);
+    addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'lib', filesep, 'operators', filesep, 'ROP']);
     addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'lib', filesep, 'ddes_utils']);
     addpath([dirProject, filesep, 'lib', filesep, 'SARA-dictionary', filesep, 'src']);
 
@@ -35,7 +36,7 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
 
     %% Measurements & operators
     % Load data
-    [DATA, param_general.flag_data_weighting] = util_read_data_file(pathData, param_general.flag_data_weighting);
+    [DATA, ROP_proj, param_general.flag_data_weighting] = util_read_data_file(pathData, param_general.flag_data_weighting);
 
     % Set pixel size
     if isempty(imPixelSize)
@@ -51,18 +52,32 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     % Set parameters releated to operators
     [param_nufft, param_wproj] = util_set_param_operator(param_general, imDimx, imDimy, imPixelSize);
 
-    % Generate operators
+    % Generate nufft operators
     [A, At, G, W, nWimag] = util_gen_meas_op_comp_single(pathData, imDimx, imDimy, ...
         param_general.flag_data_weighting, param_nufft, param_wproj);
 
-    [measop, adjoint_measop] = util_syn_meas_op_single(A, At, G, W, []);
+    %% define the measurememt operator & its adjoint
+    if isempty(ROP_proj) % only visibilities
+
+        [measop, adjoint_measop] = util_syn_meas_op_single(A, At, G, W, []);
+
+    else % combined ROP and visibilities
+
+        [measop2, adjoint_measop2] = util_syn_meas_op_single(A, At, G, W, []);
+
+        %% compute ROP operator
+        [D, Dt] = op_ROP(ROP_proj);
+        
+        measop = @(x) ( D(measop2(reshape(x, [imDimy, imDimx]))) ) ; 
+        adjoint_measop = @(y) adjoint_measop2(Dt(y));
+    end
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, [imDimy, imDimx])) ); 
     % adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [imDimy*imDimx, 1]);
     % measop_shape = struct();
-    % measop_shape.in = [512^2, 1];
-    % measop_shape.out = [100*27^2, 1];
+    % measop_shape.in = [imDimy*imDimx, 1]
+    % measop_shape.out = size(DATA);
     % adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
 
     % Compute operator's spectral norm 
@@ -76,11 +91,9 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     PSFPeak = max(PSF,[],'all');  clear dirac;
     fprintf('\nINFO: normalisation factor in RI, PSF peak value: %g', PSFPeak);
 
-    % figure(); imagesc(abs(PSF)); colorbar; title('PSF');
-
     %% Compute back-projected data: dirty image
     dirty = adjoint_measop(DATA);
-    
+
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
 
     %% Heuristic noise level, used to set the regularisation params
@@ -132,7 +145,7 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
         if isfield(param_imaging,'groundtruth') && ~isempty(param_imaging.groundtruth) && isfile(param_imaging.groundtruth)
             gdth_img = fitsread(param_imaging.groundtruth);
             rsnr = 20*log10( norm(gdth_img(:)) / norm(MODEL(:) - gdth_img(:)) );
-            fprintf('\nINFO: The signal-to-noise ratio of the final reconstructed image %f dB', rsnr)
+            fprintf('\nINFO: The signal-to-noise ratio of the final reconstructed image %.2f dB', rsnr)
         end
     end
     fprintf('\nTHE END\n')
