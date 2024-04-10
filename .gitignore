@@ -37,7 +37,8 @@ logs/
 
 !data/ngc6543a_data.mat
 !data/ngc6543a_gt.fits
-!data/ngc6543a_data_ROP_unit500.mat
+!data/ngc6543a_data_ROP_batch_unitary500.mat
+!data/ngc6543a_data_ROP_separated_unitary500.mat
 
 # WSCLEAN
 *.MS

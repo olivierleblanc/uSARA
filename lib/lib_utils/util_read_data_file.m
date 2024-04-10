@@ -1,18 +1,18 @@
-function [y, ROP_proj, flag_data_weighting] = util_read_data_file(dataFilename, flag_data_weighting)
+function [y, ROP_param, flag_data_weighting] = util_read_data_file(dataFilename, flag_data_weighting)
 
     % Check if ROP were applied
     try 
-        dataloaded = load(dataFilename, 'ROP_proj');
-        ROP_proj = dataloaded.ROP_proj;
+        dataloaded = load(dataFilename, 'ROP_param');
+        ROP_param = dataloaded.ROP_param;
     catch
-        ROP_proj = [];
+        ROP_param = [];
     end
 
     % Load measurement data and visibility weighting
     dataloaded = load(dataFilename, 'y', 'nW');
 
     % If no ROP, apply the weighting to all visibilities
-    if isempty(ROP_proj) 
+    if isempty(ROP_param) 
         y = double(dataloaded.y(:)).* double(dataloaded.nW(:));
     else % If ROP, just apply the normalization scalar
         y = double(dataloaded.y(:)).* double(dataloaded.nW(1));
