@@ -1,6 +1,6 @@
 function [y, alpha, beta, flag_data_weighting] = util_read_data_file(dataFilename, flag_data_weighting)
 
-    dataloaded = load(dataFilename, 'y', 'alpha', 'beta');
+    dataloaded = load(dataFilename, 'y', 'alpha', 'beta', 'nW');
     
     fprintf('\nINFO: imaging weights will not be applied.');
     flag_data_weighting = false;
