@@ -37,19 +37,6 @@ function imager2(path_uv_data, param_general, runID)
     % measop_shape.out = size(y);
     % adjoint_test(raw_measop_vec, adjoint_raw_measop_vec, measop_shape);
 
-    % Compute operator's spectral norm 
-    fprintf('\nComputing spectral norm of the measurement operator..')
-    [param_general.measOpNorm,~] = op_norm(measop, adjoint_measop, imSize, 1e-6, 500, 0);
-    fprintf('\nINFO: measurement op norm %f', param_general.measOpNorm);
-    
-    % Compute PSF 
-    imDimy = imSize(1); 
-    imDimx = imSize(2);
-    dirac = sparse(floor(imDimy./2) + 1, floor(imDimx./2) + 1, 1, imDimy, imDimx);
-    PSF = adjoint_measop(measop(full(dirac)));
-    PSFPeak = max(PSF,[],'all');  clear dirac;
-    fprintf('\nINFO: normalisation factor in RI, PSF peak value: %g', PSFPeak);
-
     %% data noise settings
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
     noise_param = struct();
@@ -83,6 +70,19 @@ function imager2(path_uv_data, param_general, runID)
     dirty = adjoint_measop(y);
 
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
+
+    % Compute operator's spectral norm 
+    fprintf('\nComputing spectral norm of the measurement operator..')
+    [param_general.measOpNorm,~] = op_norm(measop, adjoint_measop, imSize, 1e-6, 500, 0);
+    fprintf('\nINFO: measurement op norm %f', param_general.measOpNorm);
+
+    % Compute PSF 
+    imDimy = imSize(1); 
+    imDimx = imSize(2);
+    dirac = sparse(floor(imDimy./2) + 1, floor(imDimx./2) + 1, 1, imDimy, imDimx);
+    PSF = adjoint_measop(measop(full(dirac)));
+    PSFPeak = max(PSF,[],'all');  clear dirac;
+    fprintf('\nINFO: normalisation factor in RI, PSF peak value: %g', PSFPeak);
 
     %% Set parameters for imaging and algorithms
     param_algo = util_set_param_algo(param_general);
