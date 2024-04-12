@@ -15,6 +15,7 @@ function imager2(path_uv_data, param_general, runID)
     %% Load uv-coverage data
     % [u, v, w, na] = generate_uv_coverage(frequency, nTimeSamples, obsTime, telescope, use_ROP);
     %%% TODO %%%
+    load(path_uv_data, 'u', 'v', 'w', 'na', 'nTimeSamples');
 
     % Set pixel size
     imPixelSize = util_set_pixel_size(param_general, path_uv_data);
@@ -57,10 +58,14 @@ function imager2(path_uv_data, param_general, runID)
     switch noiselevel
         case 'drheuristic'
             % dynamic range of the ground truth image
-            noise_param.targetDynamicRange = 255; 
+            log_sigma = rand() * (log10(1e-3) - log10(2e-6)) + log10(2e-6);
+            sigma = 10^log_sigma;
+            noise_param.targetDynamicRange = 1/sigma;
+            expo_gdth = true;
         case 'inputsnr'
             % user-specified input signal to noise ratio
             noise_param.isnr = 40; % in dB
+            expo_gdth = false;
     end
 
     %% Generate noisy measurement data
@@ -68,6 +73,10 @@ function imager2(path_uv_data, param_general, runID)
     % noise vector
     weighting_on = param_general.flag_data_weighting;
     [tau, noise] = util_gen_noise(raw_measop, adjoint_raw_measop, imSize, meas, weighting_on, noise_param);
+    if expo_gdth 
+        expo_factor = util_solve_expo_factor(param_general.sigma_0, sigma);
+        gdth_img = util_expo_im(gdth_img, expo_factor);
+    end
     
     y = raw_measop(gdth_img) + noise;
 
