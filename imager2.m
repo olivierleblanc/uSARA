@@ -6,7 +6,7 @@ function imager2(path_uv_data, param_general, runID)
     util_set_path(param_general);
 
     % set result directory
-    util_set_result_dir(param_general);
+    util_set_result_dir(path_uv_data, param_general, runID);
 
     %% Ground truth image
     gdth_img = fitsread(param_general.groundtruth);
@@ -15,20 +15,29 @@ function imager2(path_uv_data, param_general, runID)
     %% Load uv-coverage data
     % [u, v, w, na] = generate_uv_coverage(frequency, nTimeSamples, obsTime, telescope, use_ROP);
     %%% TODO %%%
-    load(path_uv_data, 'u', 'v', 'w', 'na', 'nTimeSamples');
+    load(path_uv_data, 'u_ab', 'v_ab', 'w_ab', 'na', 'nTimeSamples');
 
-    % Set pixel size
-    imPixelSize = util_set_pixel_size(param_general, path_uv_data);
+    uv_param = struct();
+    uv_param.u = u_ab;
+    uv_param.v = v_ab;
+    uv_param.w = w_ab;
+    uv_param.na = na;
+    uv_param.nTimeSamples = nTimeSamples;
+
+    % % Set pixel size
+    % imPixelSize = util_set_pixel_size(param_general, path_uv_data);
 
     %% Set ROP parameters
     ROP_param = util_gen_ROP(na,... 
-                            param_general.Npb,...
+                            param_general.Nv,...
                             nTimeSamples,... 
-                            param_general.rvtype,... 
+                            param_general.rv_type,... 
                             param_general.ROP_type);
 
+    resolution_param.superresolution = param_general.superresolution;
+
     %% measurement operator and its adjoint
-    [raw_measop, adjoint_raw_measop] = ops_raw_measop(u,v,w, imSize, resolution_param, ROP_param);
+    [raw_measop, adjoint_raw_measop] = ops_raw_measop(uv_param, imSize, resolution_param, ROP_param);
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
@@ -55,17 +64,28 @@ function imager2(path_uv_data, param_general, runID)
             expo_gdth = false;
     end
 
-    %% Generate noisy measurement data
-
-    % noise vector
-    weighting_on = param_general.flag_data_weighting;
-    [tau, noise] = util_gen_noise(raw_measop, adjoint_raw_measop, imSize, meas, weighting_on, noise_param);
+    % Exponentiation of the ground truth image
     if expo_gdth 
-        expo_factor = util_solve_expo_factor(param_general.sigma_0, sigma);
+        expo_factor = util_solve_expo_factor(param_general.sigma0, sigma);
         gdth_img = util_expo_im(gdth_img, expo_factor);
     end
+
+    figure(); imagesc(abs(gdth_img)); colorbar; title('Ground truth image');
+
+    %% Generate the measurements
+    % noiseless measurement 
+    y = raw_measop(gdth_img);
+
+    % Parameters for visibility weighting
+    weight_param = struct();
+    weight_param.weighting_on = param_general.flag_data_weighting;
+    weighting_on = weight_param.weighting_on;
+
+    % noise vector
+    [tau, noise] = util_gen_noise(raw_measop, adjoint_raw_measop, imSize, y, noise_param, weight_param);
     
-    y = raw_measop(gdth_img) + noise;
+    % add noise to the data
+    y = y + noise;
 
     %% Eventually switch visibility weighting on
     nW = tau * ones(na^2*nTimeSamples,1);
@@ -73,10 +93,13 @@ function imager2(path_uv_data, param_general, runID)
         [W, Wt] = op_vis_weighting(nW);
         y = W(y);
         [measop, adjoint_measop] = ops_measop(raw_measop, adjoint_raw_measop, W, Wt);
+    else 
+        measop = raw_measop;
+        adjoint_measop = adjoint_raw_measop;
     end
 
     %% Compute back-projected data: dirty image
-    dirty = adjoint_measop(y);
+    dirty = real(adjoint_measop(y));
 
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
 
@@ -89,7 +112,7 @@ function imager2(path_uv_data, param_general, runID)
     imDimy = imSize(1); 
     imDimx = imSize(2);
     dirac = sparse(floor(imDimy./2) + 1, floor(imDimx./2) + 1, 1, imDimy, imDimx);
-    PSF = adjoint_measop(measop(full(dirac)));
+    PSF = real(adjoint_measop(measop(full(dirac))));
     PSFPeak = max(PSF,[],'all');  clear dirac;
     fprintf('\nINFO: normalisation factor in RI, PSF peak value: %g', PSFPeak);
 

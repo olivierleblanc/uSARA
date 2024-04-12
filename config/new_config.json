@@ -7,7 +7,7 @@
             "superresolution": 1.5,
             "groundtruth": [],
             "runID": [],
-            "sigma0": 0.0
+            "sigma0": 0.02487 
         }
     },
 
@@ -16,7 +16,7 @@
         "flag": {  
             "flag_comment_1": "flags",  
             "flag_imaging": true,    
-            "flag_data_weighting": true
+            "flag_data_weighting": false
         },
 
         "other":{
@@ -51,7 +51,7 @@
         "__comment": "ROP",
 
         "rop": {
-            "Nv": 200,
+            "Nv": 20,
             "ROP_type": "dependent",
             "rv_type": "unitary"
         }
