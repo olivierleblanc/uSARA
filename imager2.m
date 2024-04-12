@@ -99,7 +99,7 @@ function imager2(path_uv_data, param_general, runID)
     end
 
     %% Compute back-projected data: dirty image
-    dirty = real(adjoint_measop(y));
+    dirty = adjoint_measop(y);
 
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
 
@@ -112,7 +112,7 @@ function imager2(path_uv_data, param_general, runID)
     imDimy = imSize(1); 
     imDimx = imSize(2);
     dirac = sparse(floor(imDimy./2) + 1, floor(imDimx./2) + 1, 1, imDimy, imDimx);
-    PSF = real(adjoint_measop(measop(full(dirac))));
+    PSF = adjoint_measop(measop(full(dirac)));
     PSFPeak = max(PSF,[],'all');  clear dirac;
     fprintf('\nINFO: normalisation factor in RI, PSF peak value: %g', PSFPeak);
 
