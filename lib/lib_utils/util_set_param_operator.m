@@ -1,4 +1,7 @@
-function [param_nufft, param_wproj] = util_set_param_operator(param_general, imDimx, imDimy, imPixelSize)
+function [param_nufft, param_wproj] = util_set_param_operator(param_general, imSize, imPixelSize)
+
+    imDimy = imSize(1);
+    imDimx = imSize(2);
     
     % NUFFT
     if ~isfield(param_general, 'nufft_oversampling')

@@ -1,4 +1,4 @@
-function [A, At, G, W, nWi] = util_gen_meas_op_comp_single(dataFilename, imDimx, imDimy, flag_data_weighting, param_nufft, param_wproj)
+function [A, At, G, W, nWi] = util_gen_meas_op_comp_single(dataFilename, imSize, flag_data_weighting, param_nufft, param_wproj)
     % Build the measurement operator for a given uv-coverage at pre-defined
     % frequencies.
     %
@@ -7,10 +7,8 @@ function [A, At, G, W, nWi] = util_gen_meas_op_comp_single(dataFilename, imDimx,
     % dataFilename: function handle
     %     Filenames of the data files to load ``u``, ``v`` and ``w`` coordinates and
     %     ``nW`` the weights involved in natural weighting.
-    % imDimx : int
-    %     Image dimension (x-axis).
-    % imDimy : int
-    %     Image dimension (y-axis).
+    % imSize : tuple
+    %     Size of the image to be reconstructed.
     % flag_data_weighting : boolean    
     %      apply data-weighting scheme (e.g., briggs, uniform)
     % param_nufft : struct
@@ -41,6 +39,9 @@ function [A, At, G, W, nWi] = util_gen_meas_op_comp_single(dataFilename, imDimx,
     %     data block within a channel.
     %%
     % speed_of_light = 299792458;
+
+    imDimy = imSize(1);
+    imDimx = imSize(2);
 
     param_nufft.N = [imDimy, imDimx];
     param_nufft.Nn = [param_nufft.Ky, param_nufft.Kx];

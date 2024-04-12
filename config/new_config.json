@@ -1,0 +1,58 @@
+[
+    {   "__comment": "Main",
+        "main": {
+            "srcName": [],
+            "uvFile": "",
+            "resultPath": [],
+            "superresolution": 1.5,
+            "groundtruth": [],
+            "runID": []
+        }
+    },
+
+    {   "__comment": "General",
+
+        "flag": {  
+            "flag_comment_1": "flags",  
+            "flag_imaging": true,    
+            "flag_data_weighting": true
+        },
+
+        "other":{
+            "dirProject": [],
+            "ncpus": []
+        }
+     },
+     
+     {   "__comment": "Denoiser",
+
+        "usara": {  
+            "denoiser_comment_1": "usara params",
+            "heuRegParamScale": 1.0,
+            "reweighting": false
+        },
+
+        "usara_default": {
+            "denoiser_comment_2": "usara default params", 
+            "imMinInnerItr": 20, 
+            "imMaxInnerItr": 2000,
+            "imMaxOuterItr": 10,
+            "imVarInnerTol": 1e-5,
+            "imVarOuterTol": 1e-4,
+            "itrSave": 200,
+            "waveletDistribution": "basis",
+            "nFacetsPerDim": [2,2],
+            "facetDimLowerBound": 256
+        }
+    },
+
+    {
+        "__comment": "ROP",
+
+        "rop": {
+            "Nv": 200,
+            "ROP_type": "dependent",
+            "rv_type": "unitary"
+        }
+     }
+]

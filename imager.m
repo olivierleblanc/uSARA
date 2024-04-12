@@ -1,5 +1,7 @@
 function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     
+    imSize = [imDimy, imDimx];
+
     fprintf('\nINFO: measurement file %s', pathData);
     fprintf('\nINFO: Image size %d x %d', imDimx, imDimy)
 
@@ -50,10 +52,10 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
     end
     
     % Set parameters releated to operators
-    [param_nufft, param_wproj] = util_set_param_operator(param_general, imDimx, imDimy, imPixelSize);
+    [param_nufft, param_wproj] = util_set_param_operator(param_general, imSize, imPixelSize);
 
     % Generate nufft operators
-    [A, At, G, W, nWimag] = util_gen_meas_op_comp_single(pathData, imDimx, imDimy, ...
+    [A, At, G, W, nWimag] = util_gen_meas_op_comp_single(pathData, imSize, ...
         param_general.flag_data_weighting, param_nufft, param_wproj);
 
     %% define the measurememt operator & its adjoint
@@ -96,24 +98,8 @@ function imager(pathData, imPixelSize, imDimx, imDimy, param_general, runID)
 
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
 
-    %% Heuristic noise level, used to set the regularisation params
-    heuristic_noise = 1 / sqrt(2 * param_general.measOpNorm);
-    fprintf('\nINFO: heuristic noise level: %g', heuristic_noise);
-
-    if param_general.flag_data_weighting
-        % Calculate the correction factor of the heuristic noise level when
-        % data weighting vector is used
-        [FWOp_prime, BWOp_prime] = util_syn_meas_op_single(A, At, G, W, nWimag.^2);
-        measOpNorm_prime = op_norm(FWOp_prime,BWOp_prime,[imDimy,imDimx],1e-6,500,0);
-        heuristic_correction = sqrt(measOpNorm_prime/param_general.measOpNorm);
-        clear FWOp_prime BWOp_prime nWimag;
-
-        heuristic_noise = heuristic_noise .* heuristic_correction;
-        fprintf('\nINFO: heuristic noise level after correction: %g', heuristic_noise);
-    end
-
     %% Set parameters for imaging and algorithms
-    param_algo = util_set_param_algo(param_general, heuristic_noise);
+    param_algo = util_set_param_algo(param_general);
     param_imaging = util_set_param_imaging(param_general, param_algo.heuRegParamScale);
     
     %% save normalised dirty image & PSF
