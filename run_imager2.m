@@ -79,6 +79,7 @@ param_general = cell2struct([struct2cell(param_flag); struct2cell(param_other); 
 param_general.resultPath = main.resultPath;
 param_general.srcName = main.srcName;
 param_general.groundtruth = main.groundtruth;
+param_general.sigma0 = main.sigma0;
 
 % set fields to default value if missing
 % set main path for the program

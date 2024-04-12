@@ -6,7 +6,8 @@
             "resultPath": [],
             "superresolution": 1.5,
             "groundtruth": [],
-            "runID": []
+            "runID": [],
+            "sigma0": 0.0
         }
     },
 

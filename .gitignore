@@ -12,9 +12,13 @@ Thumbs.db
 
 # General
 logs/
+jobs/
 *.log
 *.err
 *.out
+*.json
+
+!config/usara_sim.json
 
 # Python
 **/__pycache__/
