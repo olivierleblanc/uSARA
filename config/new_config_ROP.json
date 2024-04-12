@@ -52,7 +52,7 @@
 
         "rop": {
             "Nv": 20,
-            "ROP_type": "none",
+            "ROP_type": "dependent",
             "rv_type": "unitary"
         }
      }
