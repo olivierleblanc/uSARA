@@ -40,7 +40,7 @@
             "imMaxOuterItr": 10,
             "imVarInnerTol": 1e-5,
             "imVarOuterTol": 1e-4,
-            "itrSave": 200,
+            "itrSave": 50,
             "waveletDistribution": "basis",
             "nFacetsPerDim": [2,2],
             "facetDimLowerBound": 256
@@ -51,8 +51,9 @@
         "__comment": "ROP",
 
         "rop": {
-            "Nv": 20,
-            "ROP_type": "dependent",
+            "Nv": 50,
+            "Nm": 50,
+            "ROP_type": "modul",
             "rv_type": "unitary"
         }
      }
