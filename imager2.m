@@ -38,16 +38,16 @@ function imager2(path_uv_data, param_general, runID)
 
     resolution_param.superresolution = param_general.superresolution;
 
-    %% measurement operator and its adjoint
-    [raw_measop, adjoint_raw_measop] = ops_raw_measop(uv_param, imSize, resolution_param, ROP_param);
+    %% visibility operator and its adjoint
+    [vis_op, adjoint_vis_op] = ops_visibility(uv_param, imSize, resolution_param, ROP_param);
 
     % %% perform the adjoint test
-    % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
-    % adjoint_raw_measop_vec = @(y) reshape(adjoint_raw_measop(y), [prod(imSize), 1]);
+    % vis_op_vec = @(x) ( vis_op(reshape(x, imSize)) ); 
+    % adjoint_raw_vis_op_vec = @(y) reshape(adjoint_raw_vis_op(y), [prod(imSize), 1]);
     % measop_shape = struct();
     % measop_shape.in = [prod(imSize), 1]
     % measop_shape.out = size(y);
-    % adjoint_test(raw_measop_vec, adjoint_raw_measop_vec, measop_shape);
+    % adjoint_test(raw_vis_op_vec, adjoint_raw_vis_op_vec, vis_op_shape);
 
     %% data noise settings
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
@@ -74,31 +74,37 @@ function imager2(path_uv_data, param_general, runID)
 
     figure(); imagesc(abs(gdth_img)); colorbar; title('Ground truth image');
 
-    %% Generate the measurements
-    % noiseless measurement 
-    y = raw_measop(gdth_img);
+    %% Generate the noiseless visibilities
+    vis = vis_op(gdth_img);
 
     % Parameters for visibility weighting
     weight_param = struct();
     weight_param.weighting_on = param_general.flag_data_weighting;
     weighting_on = weight_param.weighting_on;
 
+    % (eventually) apply ROPs 
+    if ROP_param.use_ROP
+        [D, ~] = op_ROP(ROP_param);
+        y = D(vis);
+    else
+        y = vis;
+    end
+
     % noise vector
-    [tau, noise] = util_gen_noise(raw_measop, adjoint_raw_measop, imSize, y, noise_param, weight_param);
+    [tau, noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, y, noise_param, weight_param);
     
     % add noise to the data
     y = y + noise;
 
-    %% Eventually switch visibility weighting on
+    %% (eventually) switch visibility weighting on
     nW = tau * ones(na^2*nTimeSamples,1);
     if weighting_on
-        [W, Wt] = op_vis_weighting(nW);
+        [W, ~] = op_vis_weighting(nW);
         y = W(y);
-        [measop, adjoint_measop] = ops_measop(raw_measop, adjoint_raw_measop, W, Wt);
-    else 
-        measop = raw_measop;
-        adjoint_measop = adjoint_raw_measop;
     end
+
+    % Measurement operator and its adjoint
+    [measop, adjoint_measop] = ops_measop(vis_op, adjoint_vis_op, weight_param, ROP_param);
 
     %% Compute back-projected data: dirty image
     dirty = adjoint_measop(y);
