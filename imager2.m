@@ -3,7 +3,7 @@ function imager2(path_uv_data, param_general, runID)
     fprintf('\nINFO: uv data file %s', path_uv_data);
 
     %% setting paths
-    addpath('lib/lib_utils');
+    addpath([param_general.dirProject, filesep, 'lib', filesep, 'lib_utils', filesep]);
     util_set_path(param_general);
 
     % set result directory
@@ -16,14 +16,20 @@ function imager2(path_uv_data, param_general, runID)
     %% Load uv-coverage data
     % [u, v, w, na] = generate_uv_coverage(frequency, nTimeSamples, obsTime, telescope, use_ROP);
     %%% TODO %%%
-    load(path_uv_data, 'u_ab', 'v_ab', 'w_ab', 'na', 'nTimeSamples');
+    load(path_uv_data, 'u_ab', 'v_ab', 'w_ab', 'na');
 
     uv_param = struct();
     uv_param.u = u_ab;
     uv_param.v = v_ab;
     uv_param.w = w_ab;
+    switch param_general.ROP_type
+        case 'none'
+            na = 27;
+        case 'modul'
+            na = 54;
+    end
     uv_param.na = na;
-    uv_param.nTimeSamples = nTimeSamples;
+    uv_param.nTimeSamples = size(u_ab, 1);
 
     % % Set pixel size
     % imPixelSize = util_set_pixel_size(param_general, path_uv_data);
@@ -31,7 +37,7 @@ function imager2(path_uv_data, param_general, runID)
     %% Set ROP parameters
     ROP_param = util_gen_ROP(na,... 
                             param_general.Nv,...
-                            nTimeSamples,... 
+                            uv_param.nTimeSamples,... 
                             param_general.rv_type,... 
                             param_general.ROP_type,...
                             param_general.Nm);
@@ -59,7 +65,11 @@ function imager2(path_uv_data, param_general, runID)
             log_sigma = rand() * (log10(1e-3) - log10(2e-6)) + log10(2e-6);
             sigma = 10^log_sigma;
             noise_param.targetDynamicRange = 1/sigma;
-            expo_gdth = true;
+            if param_general.sigma0 > 0
+                expo_gdth = true;
+            else
+                expo_gdth = false;
+            end
         case 'inputsnr'
             % user-specified input signal to noise ratio
             noise_param.isnr = 40; % in dB
@@ -69,10 +79,11 @@ function imager2(path_uv_data, param_general, runID)
     % Exponentiation of the ground truth image
     if expo_gdth 
         expo_factor = util_solve_expo_factor(param_general.sigma0, sigma);
+        fprintf('\nINFO: target dyanmic range set to %g', noise_param.targetDynamicRange);
         gdth_img = util_expo_im(gdth_img, expo_factor);
     end
 
-    figure(); imagesc(abs(gdth_img)); colorbar; title('Ground truth image');
+    % figure(); imagesc(abs(gdth_img)); colorbar; title('Ground truth image');
 
     %% Generate the noiseless visibilities
     vis = vis_op(gdth_img);
@@ -81,6 +92,10 @@ function imager2(path_uv_data, param_general, runID)
     weight_param = struct();
     weight_param.weighting_on = param_general.flag_data_weighting;
     weighting_on = weight_param.weighting_on;
+    if weighting_on
+        load(path_uv_data, 'nWimag')
+        weight_param.nWimag = nWimag;
+    end
 
     % (eventually) apply ROPs 
     if ROP_param.use_ROP
@@ -97,9 +112,10 @@ function imager2(path_uv_data, param_general, runID)
     y = y + noise;
 
     %% (eventually) switch visibility weighting on
-    nW = tau * ones(na^2*nTimeSamples,1);
+    % nW = (1 / tau) * ones(na^2*nTimeSamples,1);
     if weighting_on
-        [W, ~] = op_vis_weighting(nW);
+        nW = (1 / tau) * nWimag;
+        [W, Wt] = op_vis_weighting(nW);
         y = W(y);
     end
 
@@ -157,6 +173,12 @@ function imager2(path_uv_data, param_general, runID)
 
         rsnr = 20*log10( norm(gdth_img(:)) / norm(MODEL(:) - gdth_img(:)) );
         fprintf('\nINFO: The signal-to-noise ratio of the final reconstructed image %.2f dB', rsnr)
+        if expo_gdth 
+            gdth_expo_log = util_log_im(gdth_img, noise_param.targetDynamicRange);
+            rec_log = util_log_im(MODEL, noise_param.targetDynamicRange);
+            rsnr_log = 20*log10( norm(gdth_expo_log(:)) / norm(rec_log(:) - gdth_expo_log(:)) );
+            fprintf('\nINFO: The log signal-to-noise ratio of the final reconstructed image %.2f dB', rsnr_log)
+        end
     end
     fprintf('\nTHE END\n')
 
