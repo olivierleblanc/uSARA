@@ -59,6 +59,7 @@ function imager2(path_uv_data, param_general, runID)
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
     noise_param = struct();
     noise_param.noiselevel = noiselevel;
+    expo_gdth = false;
     switch noiselevel
         case 'drheuristic'
             % dynamic range of the ground truth image
@@ -66,21 +67,19 @@ function imager2(path_uv_data, param_general, runID)
             sigma = 10^log_sigma;
             noise_param.targetDynamicRange = 1/sigma;
             if param_general.sigma0 > 0
+                % Exponentiation of the ground truth image
                 expo_gdth = true;
-            else
-                expo_gdth = false;
+                pattern = '(?<=_id_)\d+(?=_dt_)';
+                id = regexp(path_uv_data, pattern, 'match');
+                seed = str2num(id{1});
+                rng(seed, 'twister');
+                expo_factor = util_solve_expo_factor(param_general.sigma0, sigma);
+                fprintf('\nINFO: target dyanmic range set to %g', noise_param.targetDynamicRange);
+                gdth_img = util_expo_im(gdth_img, expo_factor);
             end
         case 'inputsnr'
             % user-specified input signal to noise ratio
             noise_param.isnr = 40; % in dB
-            expo_gdth = false;
-    end
-
-    % Exponentiation of the ground truth image
-    if expo_gdth 
-        expo_factor = util_solve_expo_factor(param_general.sigma0, sigma);
-        fprintf('\nINFO: target dyanmic range set to %g', noise_param.targetDynamicRange);
-        gdth_img = util_expo_im(gdth_img, expo_factor);
     end
 
     % figure(); imagesc(abs(gdth_img)); colorbar; title('Ground truth image');
