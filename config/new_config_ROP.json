@@ -7,7 +7,7 @@
             "superresolution": 1.5,
             "groundtruth": [],
             "runID": [],
-            "sigma0": 0.02487 
+            "sigma0": 0.01227
         }
     },
 
@@ -29,18 +29,18 @@
 
         "usara": {  
             "denoiser_comment_1": "usara params",
-            "heuRegParamScale": 1.0,
-            "reweighting": false
+            "heuRegParamScale": 2.0,
+            "reweighting": true
         },
 
         "usara_default": {
             "denoiser_comment_2": "usara default params", 
             "imMinInnerItr": 20, 
-            "imMaxInnerItr": 2000,
+            "imMaxInnerItr": 10000,
             "imMaxOuterItr": 10,
             "imVarInnerTol": 1e-5,
             "imVarOuterTol": 1e-4,
-            "itrSave": 50,
+            "itrSave": 100,
             "waveletDistribution": "basis",
             "nFacetsPerDim": [2,2],
             "facetDimLowerBound": 256
@@ -53,7 +53,7 @@
         "rop": {
             "Nv": 50,
             "Nm": 50,
-            "ROP_type": "modul",
+            "ROP_type": "none",
             "rv_type": "unitary"
         }
      }
