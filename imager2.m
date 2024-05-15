@@ -128,9 +128,10 @@ function imager2(path_uv_data, param_general, runID)
     param_algo = util_set_param_algo(param_general);
     param_imaging = util_set_param_imaging(param_general, param_algo.heuRegParamScale);
     
-    %% save normalised dirty image & PSF
+    %% save normalised dirty image, PSF and GT
     fitswrite(single(PSF), fullfile(param_imaging.resultPath, 'PSF.fits')); clear PSF;
     fitswrite(single(dirty./PSFPeak), fullfile(param_imaging.resultPath, 'dirty.fits')); 
+    fitswrite(gdth_img, fullfile(param_imaging.resultPath, 'GT.fits')) % ground truth
     
     %% INFO
     fprintf("\n________________________________________________________________\n")
