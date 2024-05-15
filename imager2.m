@@ -3,7 +3,6 @@ function imager2(path_uv_data, param_general, runID)
     fprintf('\nINFO: uv data file %s', path_uv_data);
 
     %% setting paths
-    addpath([param_general.dirProject, filesep, 'lib', filesep, 'lib_utils', filesep]);
     util_set_path(param_general);
 
     % set result directory
@@ -114,7 +113,7 @@ function imager2(path_uv_data, param_general, runID)
     % nW = (1 / tau) * ones(na^2*nTimeSamples,1);
     if weighting_on
         nW = (1 / tau) * nWimag;
-        [W, Wt] = op_vis_weighting(nW);
+        [W, ~] = op_vis_weighting(nW);
         y = W(y);
     end
 

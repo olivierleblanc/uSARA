@@ -4,6 +4,7 @@ function [] = util_set_path(param_general)
     
     % src & lib codes
     addpath([dirProject, filesep, 'lib', filesep, 'lib_imaging', filesep]);
+    addpath([dirProject, filesep, 'lib', filesep, 'lib_utils', filesep]);
     addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'nufft']);
     addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'irt', filesep, 'utilities']);
     addpath([dirProject, filesep, 'lib', filesep, 'RI-measurement-operator', filesep, 'lib', filesep, 'utils']);
