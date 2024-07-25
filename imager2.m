@@ -12,6 +12,7 @@ function imager2(path_uv_data, param_general, runID)
     %% Ground truth image
     gdth_img = fitsread(param_general.groundtruth);
     imSize = size(gdth_img);
+    figure(); imagesc(abs(gdth_img)); colorbar; title('Ground truth image');
 
     %% Load uv-coverage data: u, v, w, na, nTimeSamples
     param_uv = util_set_param_uv(path_uv_data);
@@ -20,7 +21,7 @@ function imager2(path_uv_data, param_general, runID)
     % imPixelSize = util_set_pixel_size(param_general, path_uv_data);
 
     %% Set ROP parameters
-    param_ROP = util_gen_ROP(na,... 
+    param_ROP = util_gen_ROP(param_uv.na,... 
                             param_general.Nv,...
                             param_uv.nTimeSamples,... 
                             param_general.rv_type,... 
@@ -32,30 +33,32 @@ function imager2(path_uv_data, param_general, runID)
     %% visibility operator and its adjoint
     [vis_op, adjoint_vis_op] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
 
-    % %% perform the adjoint test
-    % vis_op_vec = @(x) ( vis_op(reshape(x, imSize)) ); 
-    % adjoint_raw_vis_op_vec = @(y) reshape(adjoint_vis_op(y), [prod(imSize), 1]);
-    % vis_op_shape = struct();
-    % vis_op_shape.in = [prod(imSize), 1]
-    % vis_op_shape.out = size(y);
-    % adjoint_test(vis_op_vec, adjoint_vis_op_vec, vis_op_shape);
-
-    % figure(); imagesc(abs(gdth_img)); colorbar; title('Ground truth image');
-
     %% Generate the noiseless visibilities
     vis = vis_op(gdth_img);
+
+    % %% perform the adjoint test
+    % vis_op_vec = @(x) ( vis_op(reshape(x, imSize)) ); 
+    % adjoint_vis_op_vec = @(vis) reshape(adjoint_vis_op(vis), [prod(imSize), 1]);
+    % vis_op_shape = struct();
+    % vis_op_shape.in = [prod(imSize), 1];
+    % vis_op_shape.out = size(vis);
+    % adjoint_test(vis_op_vec, adjoint_vis_op_vec, vis_op_shape);
 
     % Parameters for visibility weighting
     weighting_on = param_general.flag_data_weighting;
     if weighting_on
-        load(path_uv_data, 'nWimag')
+        % load(path_uv_data, 'nWimag')
+        %% Call the function to generate the weights
     else
         nWimag = ones(length(vis), 1);
     end
 
     % noise vector
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
-    [tau, noise, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, y, noise_level, nWimag);
+    [tau, noise, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, vis, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
+
+    % add noise to the visibilities (see in util_gen_noise.m why)
+    vis = vis + noise;
 
     if weighting_on
         % nW = (1 / tau) * ones(na^2*nTimeSamples,1);
@@ -71,12 +74,9 @@ function imager2(path_uv_data, param_general, runID)
     else
         y = vis;
     end
-    
-    % add noise to the data
-    y = y + noise;
 
     % Measurement operator and its adjoint
-    [measop, adjoint_measop] = ops_measop(vis_op, adjoint_vis_op, weight_param, param_ROP);
+    [measop, adjoint_measop] = ops_measop(vis_op, adjoint_vis_op, weighting_on, tau, param_ROP);
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
@@ -88,7 +88,6 @@ function imager2(path_uv_data, param_general, runID)
 
     %% Compute back-projected data: dirty image
     dirty = adjoint_measop(y);
-
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
 
     % Compute operator's spectral norm 
