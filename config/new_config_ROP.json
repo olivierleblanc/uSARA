@@ -36,7 +36,7 @@
         "usara_default": {
             "denoiser_comment_2": "usara default params", 
             "imMinInnerItr": 20, 
-            "imMaxInnerItr": 10000,
+            "imMaxInnerItr": 2000,
             "imMaxOuterItr": 10,
             "imVarInnerTol": 1e-5,
             "imVarOuterTol": 1e-4,

@@ -16,7 +16,7 @@
         "flag": {  
             "flag_comment_1": "flags",  
             "flag_imaging": true,    
-            "flag_data_weighting": false
+            "flag_data_weighting": true
         },
 
         "other":{
@@ -30,7 +30,7 @@
         "usara": {  
             "denoiser_comment_1": "usara params",
             "heuRegParamScale": 1.0,
-            "reweighting": false
+            "reweighting": true
         },
 
         "usara_default": {
@@ -51,7 +51,8 @@
         "__comment": "ROP",
 
         "rop": {
-            "Nv": 20,
+            "Nv": 0,
+            "Nm": 0,
             "ROP_type": "none",
             "rv_type": "unitary"
         }

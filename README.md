@@ -88,7 +88,7 @@ The current code takes as input data a measurement file in ``.mat`` format, and 
    "w"               %% vector; w coordinate (in units of the wavelength)
    "nW"              %% vector; inverse of the noise standard deviation 
    "nWimag"          %% vector; square root of the imaging weights if available (Briggs or uniform), empty otherwise
-   "ROP_param"        %% struct; parameters if ROP are applied: projection vectors, type of ROP and RV.
+   "param_ROP"        %% struct; parameters if ROP are applied: projection vectors, type of ROP and RV.
    "frequency"       %% scalar; channel frequency
    "maxProjBaseline" %% scalar; maximum projected baseline (in units of the wavelength; formally  max(sqrt(u.^2+v.^2)))
    ```
