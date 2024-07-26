@@ -31,7 +31,7 @@ function imager2(path_uv_data, param_general, runID)
     resolution_param.superresolution = param_general.superresolution;
 
     %% visibility operator and its adjoint
-    [vis_op, adjoint_vis_op] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
+    [vis_op, adjoint_vis_op, param_uv] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
 
     %% Generate the noiseless visibilities
     vis = vis_op(gdth_img);
@@ -45,13 +45,12 @@ function imager2(path_uv_data, param_general, runID)
     % adjoint_test(vis_op_vec, adjoint_vis_op_vec, vis_op_shape);
 
     % Parameters for visibility weighting
-    weighting_on = param_general.flag_data_weighting;
-    if weighting_on
-        % load(path_uv_data, 'nWimag')
-        %% Call the function to generate the weights
-    else
-        nWimag = ones(length(vis), 1);
-    end
+    param_weighting = struct();
+    param_weighting.weighting_on = param_general.flag_data_weighting;
+    % load(path_uv_data, 'nWimag')
+    %% Call the function to generate the weights
+    param_weighting = util_gen_imaging_weights(param_uv, imSize, param_weighting);
+    nWimag = param_weighting.nWimag;
 
     % noise vector
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
@@ -60,7 +59,7 @@ function imager2(path_uv_data, param_general, runID)
     % add noise to the visibilities (see in util_gen_noise.m why)
     vis = vis + noise;
 
-    if weighting_on
+    if param_weighting.weighting_on
         % nW = (1 / tau) * ones(na^2*nTimeSamples,1);
         nW = (1 / tau) * nWimag;
         [W, ~] = op_vis_weighting(nW);
@@ -76,7 +75,7 @@ function imager2(path_uv_data, param_general, runID)
     end
 
     % Measurement operator and its adjoint
-    [measop, adjoint_measop] = ops_measop(vis_op, adjoint_vis_op, weighting_on, tau, param_ROP);
+    [measop, adjoint_measop] = ops_measop(vis_op, adjoint_vis_op, param_weighting, tau, param_ROP);
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
