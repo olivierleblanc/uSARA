@@ -4,17 +4,17 @@ function param_algo = util_set_param_algo(param_general)
     heuristic_noise = 1 / sqrt(2 * param_general.measOpNorm);
     fprintf('\nINFO: heuristic noise level: %g', heuristic_noise);
 
-    if param_general.flag_data_weighting
-        % Calculate the correction factor of the heuristic noise level when
-        % data weighting vector is used
-        [FWOp_prime, BWOp_prime] = util_syn_meas_op_single(A, At, G, W, nWimag.^2);
-        measOpNorm_prime = op_norm(FWOp_prime,BWOp_prime,imSize,1e-6,500,0);
-        heuristic_correction = sqrt(measOpNorm_prime/param_general.measOpNorm);
-        clear FWOp_prime BWOp_prime nWimag;
+    % if param_general.flag_data_weighting
+    %     % Calculate the correction factor of the heuristic noise level when
+    %     % data weighting vector is used
+    %     [FWOp_prime, BWOp_prime] = util_syn_meas_op_single(vis_op, adjoint_vis_op, G, W, nWimag.^2);
+    %     measOpNorm_prime = op_norm(FWOp_prime,BWOp_prime,imSize,1e-6,500,0);
+    %     heuristic_correction = sqrt(measOpNorm_prime/param_general.measOpNorm);
+    %     clear FWOp_prime BWOp_prime nWimag;
 
-        heuristic_noise = heuristic_noise .* heuristic_correction;
-        fprintf('\nINFO: heuristic noise level after correction: %g', heuristic_noise);
-    end
+    %     heuristic_noise = heuristic_noise .* heuristic_correction;
+    %     fprintf('\nINFO: heuristic noise level after correction: %g', heuristic_noise);
+    % end
 
     % max number of inner iterations
     if ~isfield(param_general,'imMaxInnerItr') || ~isscalar(param_general.imMaxInnerItr)

@@ -7,7 +7,7 @@
             "superresolution": 1.5,
             "groundtruth": [],
             "runID": [],
-            "sigma0": 0.01227
+            "sigma0": 0.02487
         }
     },
 
@@ -51,9 +51,9 @@
         "__comment": "ROP",
 
         "rop": {
-            "Nv": 50,
+            "Nv": 20,
             "Nm": 50,
-            "ROP_type": "none",
+            "ROP_type": "modul",
             "rv_type": "unitary"
         }
      }
