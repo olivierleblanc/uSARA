@@ -33,6 +33,19 @@ function imager2(path_uv_data, param_general, runID)
     %% visibility operator and its adjoint
     [vis_op, adjoint_vis_op] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
 
+    % Parameters for visibility weighting
+    weighting_on = param_general.flag_data_weighting;
+    if weighting_on
+        % load(path_uv_data, 'nWimag')
+        %% Call the function to generate the weights
+    else
+        nWimag = ones(length(vis), 1);
+    end
+
+    % exponentiate the GT and compute the noise vector
+    noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
+    [tau, noise, gdth_img, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, vis, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
+
     %% Generate the noiseless visibilities
     vis = vis_op(gdth_img);
 
@@ -43,19 +56,6 @@ function imager2(path_uv_data, param_general, runID)
     % vis_op_shape.in = [prod(imSize), 1];
     % vis_op_shape.out = size(vis);
     % adjoint_test(vis_op_vec, adjoint_vis_op_vec, vis_op_shape);
-
-    % Parameters for visibility weighting
-    weighting_on = param_general.flag_data_weighting;
-    if weighting_on
-        % load(path_uv_data, 'nWimag')
-        %% Call the function to generate the weights
-    else
-        nWimag = ones(length(vis), 1);
-    end
-
-    % noise vector
-    noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
-    [tau, noise, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, vis, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
 
     % add noise to the visibilities (see in util_gen_noise.m why)
     vis = vis + noise;

@@ -29,7 +29,7 @@
 
         "usara": {  
             "denoiser_comment_1": "usara params",
-            "heuRegParamScale": 1.0,
+            "heuRegParamScale": 2.0,
             "reweighting": true
         },
 
