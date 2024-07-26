@@ -54,7 +54,7 @@ function imager2(path_uv_data, param_general, runID)
 
     % noise vector
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
-    [tau, noise, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, vis, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
+    [tau, noise, gdth_img, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, vis, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
 
     % add noise to the visibilities (see in util_gen_noise.m why)
     vis = vis + noise;
