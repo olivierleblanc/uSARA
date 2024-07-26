@@ -33,9 +33,6 @@ function imager2(path_uv_data, param_general, runID)
     %% visibility operator and its adjoint
     [vis_op, adjoint_vis_op, param_uv] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
 
-    %% Generate the noiseless visibilities
-    vis = vis_op(gdth_img);
-
     % %% perform the adjoint test
     % vis_op_vec = @(x) ( vis_op(reshape(x, imSize)) ); 
     % adjoint_vis_op_vec = @(vis) reshape(adjoint_vis_op(vis), [prod(imSize), 1]);
@@ -54,7 +51,7 @@ function imager2(path_uv_data, param_general, runID)
 
     % noise vector
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
-    [tau, noise, gdth_img, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, vis, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
+    [tau, noise, expo_gdth_img, vis, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, length(param_uv.u(:)), noiselevel, nWimag, param_general, path_uv_data, gdth_img);
 
     % add noise to the visibilities (see in util_gen_noise.m why)
     vis = vis + noise;
@@ -110,6 +107,7 @@ function imager2(path_uv_data, param_general, runID)
     fitswrite(single(PSF), fullfile(param_imaging.resultPath, 'PSF.fits')); clear PSF;
     fitswrite(single(dirty./PSFPeak), fullfile(param_imaging.resultPath, 'dirty.fits')); 
     fitswrite(gdth_img, fullfile(param_imaging.resultPath, 'GT.fits')) % ground truth
+    fitswrite(expo_gdth_img, fullfile(param_imaging.resultPath, 'expo_GT.fits')) % ground truth
     
     %% INFO
     fprintf("\n________________________________________________________________\n")
@@ -127,7 +125,7 @@ function imager2(path_uv_data, param_general, runID)
         util_save_results(MODEL, RESIDUAL, PSFPeak, param_imaging);
 
         %% Final metrics
-        util_final_metrics(gdth_img, dirty, MODEL, RESIDUAL, PSFPeak, param_noise);
+        util_final_metrics(expo_gdth_img, dirty, MODEL, RESIDUAL, PSFPeak, param_noise);
     end
     fprintf('\nTHE END\n')
 
