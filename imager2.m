@@ -41,6 +41,18 @@ function imager2(path_uv_data, param_general, runID)
     % vis_op_shape.out = size(vis);
     % adjoint_test(vis_op_vec, adjoint_vis_op_vec, vis_op_shape);
 
+    % Parameters for visibility weighting
+    param_weighting = struct();
+    param_weighting.weighting_on = param_general.flag_data_weighting;
+    % load(path_uv_data, 'nWimag')
+    %% Call the function to generate the weights
+    param_weighting = util_gen_imaging_weights(param_uv, imSize, param_weighting);
+    nWimag = param_weighting.nWimag;
+
+    % noise vector
+    noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
+    [tau, noise, expo_gdth_img, vis, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, length(param_uv.u(:)), noiselevel, nWimag, param_general, path_uv_data, gdth_img);
+
     % add noise to the visibilities (see in util_gen_noise.m why)
     vis = vis + noise;
 
