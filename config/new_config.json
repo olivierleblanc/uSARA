@@ -51,8 +51,8 @@
         "__comment": "ROP",
 
         "rop": {
-            "Nv": 0,
-            "Nm": 0,
+            "Np": 20,
+            "Nm": 100,
             "ROP_type": "none",
             "rv_type": "unitary"
         }

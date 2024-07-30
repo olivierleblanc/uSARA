@@ -121,6 +121,7 @@ for itr_outer = 1 : param_algo.imMaxOuterItr
     MODEL_prevRe = MODEL;
 end
 t_total = toc(t_total);
+save(fullfile(param_imaging.resultPath, 'time.mat'), 't_total', 'itr');
 
 fprintf("\n\nImaging finished in %f sec, cumulative number of iterations %d\n\n", t_total, itr);
 fprintf('\n**************************************\n')
