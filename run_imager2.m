@@ -81,10 +81,10 @@ param_general.srcName = main.srcName;
 param_general.groundtruth = main.groundtruth;
 param_general.sigma0 = main.sigma0;
 
-% get child filename of groundtruth and remove extension .fits
-[~, param_general.subFolerName, ~] = fileparts(param_general.groundtruth);
-[~, tmp, ~] = fileparts(main.uvFile);
-param_general.subFolerName = [param_general.subFolerName, filesep, tmp];
+% % get child filename of groundtruth and remove extension .fits
+% [~, param_general.subFolerName, ~] = fileparts(param_general.groundtruth);
+% [~, tmp, ~] = fileparts(main.uvFile);
+% param_general.subFolerName = [param_general.subFolerName, filesep, tmp];
 
 % set fields to default value if missing
 % set main path for the program
