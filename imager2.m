@@ -28,7 +28,7 @@ function imager2(path_uv_data, param_general, runID)
     resolution_param.superresolution = param_general.superresolution;
 
     %% visibility operator and its adjoint
-    [vis_op, adjoint_vis_op, param_uv] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
+    [vis_op, adjoint_vis_op, param_uv, G, Ft, IFt] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
 
     % %% perform the adjoint test
     % vis_op_vec = @(x) ( vis_op(reshape(x, imSize)) ); 
@@ -69,7 +69,7 @@ function imager2(path_uv_data, param_general, runID)
     end
 
     % Measurement operator and its adjoint
-    [measop, adjoint_measop] = ops_measop(vis_op, adjoint_vis_op, param_weighting, tau, param_ROP);
+    [measop, adjoint_measop] = ops_measop(G, Ft, IFt, param_weighting, tau, param_ROP);
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
