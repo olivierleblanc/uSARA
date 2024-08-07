@@ -54,7 +54,7 @@ function imager2(path_uv_data, param_general, runID)
     vis = vis + noise;
 
     % Measurement operator and its adjoint
-    [measop, adjoint_measop, vis] = ops_measop(vis, G, Ft, IFt, param_weighting, tau, param_ROP);
+    [measop, adjoint_measop, y] = ops_measop(vis, G, Ft, IFt, param_weighting, tau, param_ROP);
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
