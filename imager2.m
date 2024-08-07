@@ -53,23 +53,8 @@ function imager2(path_uv_data, param_general, runID)
     % add noise to the visibilities (see in util_gen_noise.m why)
     vis = vis + noise;
 
-    if param_weighting.weighting_on
-        % nW = (1 / tau) * ones(na^2*nTimeSamples,1);
-        nW = (1 / tau) * nWimag;
-        [W, ~] = op_vis_weighting(nW);
-        vis = W(vis);
-    end
-
-    % (eventually) apply ROPs 
-    if param_ROP.use_ROP
-        [D, ~] = op_ROP(param_ROP);
-        y = D(vis);
-    else
-        y = vis;
-    end
-
     % Measurement operator and its adjoint
-    [measop, adjoint_measop] = ops_measop(G, Ft, IFt, param_weighting, tau, param_ROP);
+    [measop, adjoint_measop, vis] = ops_measop(vis, G, Ft, IFt, param_weighting, tau, param_ROP);
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
