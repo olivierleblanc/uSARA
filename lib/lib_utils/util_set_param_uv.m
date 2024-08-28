@@ -7,7 +7,8 @@ function param_uv = util_set_param_uv(path_uv_data)
     param_uv = struct();
     param_uv.u = u_ab;
     param_uv.v = v_ab;
-    param_uv.w = w_ab;
+    param_uv.w = zeros('like', u_ab);
+    % param_uv.w = w_ab;
     % switch param_general.ROP_type
     %     case 'none'
     %         na = 27;

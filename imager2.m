@@ -41,6 +41,7 @@ function imager2(path_uv_data, param_general, runID)
     % Parameters for visibility weighting
     param_weighting = struct();
     param_weighting.weighting_on = param_general.flag_data_weighting;
+    param_weighting.weight_type = 'briggs';
     % load(path_uv_data, 'nWimag')
     %% Call the function to generate the weights
     param_weighting = util_gen_imaging_weights(param_uv, imSize, param_weighting);
@@ -84,7 +85,7 @@ function imager2(path_uv_data, param_general, runID)
     %% Set parameters for imaging and algorithms
     param_algo = util_set_param_algo(param_general);
     param_imaging = util_set_param_imaging(param_general, param_algo.heuRegParamScale);
-    
+
     %% save normalised dirty image, PSF and GT
     fitswrite(single(PSF), fullfile(param_imaging.resultPath, 'PSF.fits')); clear PSF;
     fitswrite(single(dirty./PSFPeak), fullfile(param_imaging.resultPath, 'dirty.fits')); 

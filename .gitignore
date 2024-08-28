@@ -12,6 +12,7 @@ Thumbs.db
 
 # General
 logs/
+local/
 jobs/
 *.log
 *.err
