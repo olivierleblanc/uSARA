@@ -54,7 +54,8 @@
             "Np": 20,
             "Nm": 150,
             "ROP_type": "modul",
-            "rv_type": "unitary"
+            "rv_type": "unitary",
+            "precompute": false
         }
      }
 ]

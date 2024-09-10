@@ -61,7 +61,7 @@ function imager2(path_uv_data, param_general, runID)
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
     % adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [prod(imSize), 1]);
     % measop_shape = struct();
-    % measop_shape.in = [prod(imSize), 1]
+    % measop_shape.in = [prod(imSize), 1];
     % measop_shape.out = size(y);
     % adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
 
