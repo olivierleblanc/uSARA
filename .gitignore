@@ -59,3 +59,7 @@ jobs/
 
 # Exception
 # !*shelf*.csv
+
+*.Identifier
+
+*.ipynb

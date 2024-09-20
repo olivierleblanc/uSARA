@@ -1,4 +1,4 @@
-function imager2(path_uv_data, param_general, runID)
+function imager3(path_uv_data, param_general, runID)
     
     fprintf('\nINFO: uv data file %s', path_uv_data);
 
@@ -28,7 +28,7 @@ function imager2(path_uv_data, param_general, runID)
     resolution_param.superresolution = param_general.superresolution;
 
     %% visibility operator and its adjoint
-    [vis_op, adjoint_vis_op, param_uv, G, Ft, IFt] = ops_visibility(param_uv, imSize, resolution_param, param_ROP);
+    [vis_op, adjoint_vis_op, param_uv, G, Ft, IFt] = ops_visibility2(param_uv, imSize, resolution_param, param_ROP);
 
     % %% perform the adjoint test
     % vis_op_vec = @(x) ( vis_op(reshape(x, imSize)) ); 
@@ -56,13 +56,35 @@ function imager2(path_uv_data, param_general, runID)
 
     % noise vector
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
-    [tau, noise, expo_gdth_img, vis, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, length(param_uv.u(:)), noiselevel, nWimag, param_general, path_uv_data, gdth_img);
-
+    % [D, Dt] = op_ROP(param_ROP);
+    [measop_raw, adjoint_measop_raw] = ops_measop2(G, Ft, IFt, 1, param_ROP);
+    
+    [tau, noise, expo_gdth_img, param_noise, vis] = util_gen_noise2(measop_raw, adjoint_measop_raw, imSize, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
+    
+    if param_weighting.weighting_on
+        nW = (1 / tau) .* nWimag;
+        G = nW .* G;
+    else
+        nW = 1;
+    end
+    
+    [measop, adjoint_measop] = ops_measop2(G, Ft, IFt, 1, param_ROP);
+    if param_weighting.weighting_on
+        [~, adjoint_measop_dirty] = ops_measop2(G, Ft, IFt, nW, param_ROP);
+    else
+        adjoint_measop_dirty = adjoint_measop;
+    end
     % add noise to the visibilities (see in util_gen_noise.m why)
-    vis = vis + noise;
+    if strcmp(noiselevel, 'drheuristic')
+        isnr = 20 *log10 (norm(vis)./norm(noise));
+        fprintf("\ninfo: random Gaussian noise with input SNR: %.3f db", isnr)
+    end
+    y = vis + noise;
+    % if param_weighting.weighting_on
+    %     y = nW .* y ;
+    % end
 
     % Measurement operator and its adjoint
-    [measop, adjoint_measop, y] = ops_measop(vis, G, Ft, IFt, param_weighting, tau, param_ROP);
 
     % %% perform the adjoint test
     % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
@@ -73,12 +95,12 @@ function imager2(path_uv_data, param_general, runID)
     % adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
 
     %% Compute back-projected data: dirty image
-    dirty = adjoint_measop(y);
+    dirty = adjoint_measop_dirty(y);
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
 
     % Compute operator's spectral norm 
     fprintf('\nComputing spectral norm of the measurement operator..')
-    [param_general.measOpNorm,~] = op_norm(measop, adjoint_measop, imSize, 1e-6, 500, 0);
+    [param_general.measOpNorm,~] = op_norm(measop, adjoint_measop, imSize, 1e-4, 500, 0);
     fprintf('\nINFO: measurement op norm %f', param_general.measOpNorm);
     % param_general.measOpNorm = 9953052.784704;
     % fprintf('\nINFO: measurement op norm hard coded to %f', param_general.measOpNorm);
