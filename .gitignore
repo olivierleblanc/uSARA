@@ -38,6 +38,7 @@ jobs/
 *.onnx
 
 !data/3c353_gdth.fits
+!data/3c353_256.fits
 !data/3c353_meas_dt_1_seed_0.mat
 
 !data/ngc6543a_data.mat
@@ -63,3 +64,5 @@ jobs/
 *.Identifier
 
 *.ipynb
+
+gen_rand.m
