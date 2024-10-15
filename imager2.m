@@ -16,7 +16,7 @@ function imager2(path_uv_data, param_general, runID)
 
     %% Load uv-coverage data: u, v, w, na, nTimeSamples
     param_uv = util_set_param_uv(path_uv_data);
-
+    param_uv.use_BDA = param_general.use_BDA;
     % % Set pixel size
     % imPixelSize = util_set_pixel_size(param_general, path_uv_data);
 
@@ -24,6 +24,11 @@ function imager2(path_uv_data, param_general, runID)
     [param_ROP, param_general] = util_gen_ROP(param_uv.na,... 
                             param_uv.nTimeSamples,... 
                             param_general);
+
+    %% Compute BDA weights and selection matrix
+    if param_uv.use_BDA
+        [I_s, W_bda] = util_BDA(path_uv_data);
+    end
 
     resolution_param.superresolution = param_general.superresolution;
 
@@ -49,11 +54,11 @@ function imager2(path_uv_data, param_general, runID)
         param_weighting.weight_robustness = 0.0;
         fprintf('\nINFO: Generating imaging weights type: %s', param_weighting.weight_type);
         param_weighting = util_gen_imaging_weights(param_uv, imSize, param_weighting);
-        nWimag = param_weighting.nWimag;
     elseif param_weighting.weighting_on && strcmp(param_weighting.weight_type, 'natural')
-        nWimag = 1;
+        param_weighting.nWimag = 1;
     end
-
+    nWimag = param_weighting.nWimag;
+    
     % noise vector
     noiselevel = 'drheuristic'; % possible values: `drheuristic` ; `inputsnr`
     [tau, noise, expo_gdth_img, vis, param_noise] = util_gen_noise(vis_op, adjoint_vis_op, imSize, length(param_uv.u(:)), noiselevel, nWimag, param_general, path_uv_data, gdth_img);
@@ -64,13 +69,18 @@ function imager2(path_uv_data, param_general, runID)
     % Measurement operator and its adjoint
     [measop, adjoint_measop, y] = ops_measop(vis, G, Ft, IFt, param_weighting, tau, param_ROP);
 
+    if param_uv.use_BDA
+        measop = @(x) W_bda * I_s * measop(x);
+        adjoint_measop = @(y) adjoint_measop(I_s' * W_bda' * y);
+    end
+
     % %% perform the adjoint test
-    % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
-    % adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [prod(imSize), 1]);
-    % measop_shape = struct();
-    % measop_shape.in = [prod(imSize), 1];
-    % measop_shape.out = size(y);
-    % adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
+    measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
+    adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [prod(imSize), 1]);
+    measop_shape = struct();
+    measop_shape.in = [prod(imSize), 1];
+    measop_shape.out = size(y);
+    adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
 
     %% Compute back-projected data: dirty image
     dirty = adjoint_measop(y);

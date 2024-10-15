@@ -59,43 +59,42 @@ function imager3(path_uv_data, param_general, runID)
     % [D, Dt] = op_ROP(param_ROP);
     [measop_raw, adjoint_measop_raw] = ops_measop2(G, Ft, IFt, 1, param_ROP);
     
-    [tau, noise, expo_gdth_img, param_noise, vis] = util_gen_noise2(measop_raw, adjoint_measop_raw, imSize, noiselevel, nWimag, param_general, path_uv_data, gdth_img);
+    [tau, noise, expo_gdth_img, param_noise, vis] = util_gen_noise2(measop_raw, adjoint_measop_raw, imSize, noiselevel, nWimag, param_general, path_uv_data, gdth_img, G, Ft, IFt, param_ROP);
     
-    if param_weighting.weighting_on
-        nW = (1 / tau) .* nWimag;
-        G = nW .* G;
-    else
-        nW = 1;
-    end
-    
-    [measop, adjoint_measop] = ops_measop2(G, Ft, IFt, 1, param_ROP);
-    if param_weighting.weighting_on
-        [~, adjoint_measop_dirty] = ops_measop2(G, Ft, IFt, nW, param_ROP);
-    else
-        adjoint_measop_dirty = adjoint_measop;
-    end
     % add noise to the visibilities (see in util_gen_noise.m why)
     if strcmp(noiselevel, 'drheuristic')
         isnr = 20 *log10 (norm(vis)./norm(noise));
         fprintf("\ninfo: random Gaussian noise with input SNR: %.3f db", isnr)
     end
     y = vis + noise;
-    % if param_weighting.weighting_on
-    %     y = nW .* y ;
-    % end
+    
+    if param_weighting.weighting_on
+        nW = (1 / tau) .* nWimag;
+        % G = nW .* G;
+    else
+        nW = 1 / tau;
+    end
+    
+    [measop, adjoint_measop] = ops_measop2(G, Ft, IFt, nW, param_ROP);
+    if param_weighting.weighting_on
+        [~, adjoint_measop_dirty] = ops_measop2(G, Ft, IFt, nW.^2, param_ROP);
+    else
+        adjoint_measop_dirty = adjoint_measop;
+    end
 
     % Measurement operator and its adjoint
 
     % %% perform the adjoint test
-    % measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
-    % adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [prod(imSize), 1]);
-    % measop_shape = struct();
-    % measop_shape.in = [prod(imSize), 1];
-    % measop_shape.out = size(y);
-    % adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
+    measop_vec = @(x) ( measop(reshape(x, imSize)) ); 
+    adjoint_measop_vec = @(y) reshape(adjoint_measop(y), [prod(imSize), 1]);
+    measop_shape = struct();
+    measop_shape.in = [prod(imSize), 1];
+    measop_shape.out = size(y);
+    adjoint_test(measop_vec, adjoint_measop_vec, measop_shape);
 
     %% Compute back-projected data: dirty image
     dirty = adjoint_measop_dirty(y);
+    % dirty = adjoint_measop(y);
     figure(); imagesc(abs(dirty)); colorbar; title('Dirty image');
 
     % Compute operator's spectral norm 

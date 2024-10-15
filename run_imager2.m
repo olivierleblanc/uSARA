@@ -50,6 +50,7 @@ end
 if isfield(NameValueArgs, 'runID')
     main.runID = NameValueArgs.runID;
 end
+
 % if isempty(main.runID)
 %     main.runID = 0;
 % end
@@ -116,6 +117,12 @@ if isfield(param_general,'ncpus') && ~isempty(param_general.ncpus)
     fprintf("\nINFO: Available CPUs: %d. Requested CPUs: %d\n",navail , maxNumCompThreads)
 else
     fprintf("\nINFO: Available CPUs: %d.\n", maxNumCompThreads)
+end
+% baseline dependent averaging
+if ~isfield(param_flag, 'use_BDA')
+    param_general.use_BDA = false;
+else
+    param_general.use_BDA = param_flag.use_BDA;
 end
 
 disp(param_general)

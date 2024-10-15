@@ -15,7 +15,7 @@ function param_uv = util_set_param_uv(path_uv_data)
     %     case 'modul'
     %         na = 54;
     % end
-    na = 27;
+    % na = 27;
     param_uv.na = na;
     param_uv.nTimeSamples = size(u_ab, 1);
 end
