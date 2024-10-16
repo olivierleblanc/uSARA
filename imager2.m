@@ -70,8 +70,9 @@ function imager2(path_uv_data, param_general, runID)
     [measop, adjoint_measop, y] = ops_measop(vis, G, Ft, IFt, param_weighting, tau, param_ROP);
 
     if param_uv.use_BDA
-        measop = @(x) W_bda * I_s * measop(x);
-        adjoint_measop = @(y) adjoint_measop(I_s' * W_bda' * y);
+        measop = @(x) (W_bda .* I_s) * measop(x);
+        adjoint_measop = @(y) adjoint_measop(I_s' * (W_bda .* y));
+        y = (W_bda .* I_s) * y;
     end
 
     % %% perform the adjoint test
