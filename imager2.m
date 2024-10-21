@@ -68,7 +68,7 @@ function imager2(path_uv_data, param_general, runID)
 
     % Measurement operator and its adjoint
     [measop, adjoint_measop, y] = ops_measop(vis, G, Ft, IFt, param_weighting, tau, param_ROP);
-    % [measop, adjoint_measop, y] = ops_measop2(gdth_img, G, Ft, IFt, param_weighting, tau, param_ROP, noise);
+    % [measop, adjoint_measop, y] = ops_measop2(expo_gdth_img, G, Ft, IFt, param_weighting, tau, param_ROP, noise);
 
     if param_uv.use_BDA
         measop = @(x) (W_bda .* I_s) * measop(x);
